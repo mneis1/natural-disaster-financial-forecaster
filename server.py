@@ -1,6 +1,6 @@
 from flask import Flask
 import pandas as pd
-
+import json
 
 app = Flask(__name__)
 
@@ -85,15 +85,41 @@ def pullData():
     return "{\"alabama\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"alaska\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"arizona\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"arkansas\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"california\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"colorado\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"connecticut\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"delaware\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"florida\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"georgia\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"hawaii\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"idaho\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"illinois\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"indiana\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"iowa\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"kansas\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"kentucky\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"louisiana\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"maine\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"maryland\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"massachusetts\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"michigan\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"minnesota\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"mississippi\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"missouri\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"montana\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"nebraska\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"nevada\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"new hampshire\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"new jersey\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"new mexico\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"new york\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"north carolina\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"north dakota\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"ohio\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"oklahoma\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"oregon\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"pennsylvania\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"rhode island\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"south carolina\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"south dakota\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"tennessee\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"texas\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"utah\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"vermont\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"virginia\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"washington\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"west virginia\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"wisconsin\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5},\"wyoming\":{\"1\":0.5,\"2\":0.5,\"3\":0.5,\"4\":0.5}}"
 
 
+@app.route("/getdisasters", methods=['POST', 'GET'])
+def disasterdata():
+    df = pd.read_csv("historic-full-data.csv")
+    arrofallobjs = []
+    for index, row in df.iterrows():
+        # declarationDate	Year	Quarter	state	incidentType	alabama-Q1	alaska-Q1 ...
+        #print(row[index], row[index+1])
+        innerDictElement = {'year': row[1], 'quarter': row[2], 'state':row[3], 'disaster':row[4]}
+
+        # gdpDict = dict()
+        # for i in range(50):
+        #     gdpDict[df.columns[i + 5].split(' ')[0]] = row[i+5]
+        #
+        # innerDictElement["gdp"] = gdpDict
+        arrofallobjs.append(innerDictElement)
+    output_json = json.dumps(arrofallobjs)
+    print(str(output_json))
+
+    return str(output_json)
+
 @app.route("/gethistoric", methods=['POST', 'GET'])
 def gethistoricdata():
-    df = pd.read_csv("historic-full-data.csv")
+    mainDict = dict()
+    df = pd.read_csv("GDPByState.csv")
     for index, row in df.iterrows():
-        print("index is " + str(index))
-        print("row is " + str(row))
-        break
 
-    return ""
+        tempDict = dict()
+        for i in range(51):
+            tempDict[str(i)] = row[i+1]
+        mainDict[row[0]] = tempDict
+
+    output_json = json.dumps(mainDict)
+    print(str(output_json))
+
+    return str(output_json)
 
 if __name__== '__main__':
     app.run(host='0.0.0.0')
